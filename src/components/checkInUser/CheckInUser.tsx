@@ -1,8 +1,9 @@
 import { Button, Center, Group, Paper, Stack, Text, TextInput } from '@mantine/core';
 import { useState } from 'react';
-import { checkInService } from '../../services/checkin.service';
 import { showConfirmModal } from '../../helpers/confirmFeedbackManagment';
 import { ConfirmModalType } from '../../types/confirmModal';
+import { checkInService } from '../../services/checkin.service';
+/* import { CheckInServiceTs } from '../../export/firebaseService'; */
 
 export const CheckInUser = () => {
 	const [userCode, setUserCode] = useState('');
@@ -54,7 +55,7 @@ export const CheckInUser = () => {
 						</Text>
 					</Stack>
 				),
-				onConfirm: () => onSaveCheckIn(email, names),
+				onConfirm: () => onSaveCheckIn(),
 				onCancel: () => setIsSaving(false),
 			});
 		} catch (error) {
@@ -62,14 +63,15 @@ export const CheckInUser = () => {
 		}
 	};
 
-	const onSaveCheckIn = async (email: string, names: string) => {
+	const onSaveCheckIn = async () => {
 		try {
 			await checkInService.saveUserParticipation({
 				userCode,
-				points: 15,
 			});
 			setIsSaving(false);
 		} catch (error) {
+			const myError = error as Error;
+			if (myError.message === '404') return handleError('El usuario no esta registrado');
 			handleError('Error al registrar la participación');
 		}
 	};

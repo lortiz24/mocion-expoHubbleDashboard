@@ -5,8 +5,8 @@ import { Attendee } from '../types/atendee.type';
 import { Experience } from '../types/experience.type';
 
 export class CheckInService {
-	eventId: string = '65747321300474a2240776e6'; //Todo: Aquí coloca el id del evento
-	experienceId: string = 'i0own9qlUQ'; //toDo: Aquí coloca el id de la experiencia asignada
+	eventId: string = '66e4928e446844dcb6079aa2'; //Todo: Aquí coloca el id del evento
+	experienceId: string = 'KbCLd9hZ3r'; //toDo: Aquí coloca el id de la experiencia asignada
 	participationCollection: CollectionReference<DocumentData, DocumentData>;
 	attendeesCollection: CollectionReference<DocumentData, DocumentData>;
 	experiences: Experience[] = [
@@ -61,37 +61,16 @@ export class CheckInService {
 		}
 	}
 
-	async getUsersParticipation() {
-		const querySnapshot = await getDocs(this.participationCollection); // Obtener todos los documentos
-
-		if (!querySnapshot.empty) {
-			// Mapeamos todos los documentos a un array de objetos Participation
-			const usersParticipation: Participation[] = querySnapshot.docs.map((doc) => ({
-				id: doc.id,
-				...(doc.data() as Omit<Participation, 'id'>),
-			}));
-
-			return usersParticipation;
-		} else {
-			return [];
-		}
-	}
-
-	async saveUserParticipation({ userCode, checkIn = true, points }: SaveParticipationOfUser) {
+	async saveUserParticipation({ userCode, checkInAt = new Date().toUTCString(), points = 0 }: SaveParticipationOfUser) {
 		const attendee = await this.getAttendeeByUserCode({ userCode });
 
 		if (attendee === null) throw Error('404');
 
 		const previousParticipation = await this.getUserParticipation({ userCode });
-
 		if (previousParticipation) {
 			const docId = previousParticipation.id;
 			const userExperienceRef = doc(this.firebaseDB, `event/${this.eventId}/usersActivityIntoExperiences`, docId);
-
-			await updateDoc(userExperienceRef, {
-				checkIn,
-				points,
-			});
+			await updateDoc(userExperienceRef, { points });
 
 			return docId;
 		} else {
@@ -99,16 +78,16 @@ export class CheckInService {
 			const attendee = await this.getAttendeeByUserCode({ userCode });
 
 			if (!attendee) return console.error('El código no esta registrado');
-			
+
 			const newDoc: Omit<Participation, 'id'> = {
 				userCode,
+				checkInAt,
 				experienceId: this.experienceId,
 				experienceName: experience.name,
 				points,
 				email: attendee.properties.email,
 				names: attendee.properties.names,
 			};
-
 			const newDocRef = await addDoc(this.participationCollection, newDoc);
 			return newDocRef.id;
 		}
@@ -131,6 +110,22 @@ export class CheckInService {
 			return attendee as Attendee;
 		}
 		return null;
+	}
+	// ---------------------------------------------------------------------------------------------------
+	async getUsersParticipation() {
+		const querySnapshot = await getDocs(this.participationCollection); // Obtener todos los documentos
+
+		if (!querySnapshot.empty) {
+			// Mapeamos todos los documentos a un array de objetos Participation
+			const usersParticipation: Participation[] = querySnapshot.docs.map((doc) => ({
+				id: doc.id,
+				...(doc.data() as Omit<Participation, 'id'>),
+			}));
+
+			return usersParticipation;
+		} else {
+			return [];
+		}
 	}
 
 	async getAllAttendee() {

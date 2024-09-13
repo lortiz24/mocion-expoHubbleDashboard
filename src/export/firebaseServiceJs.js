@@ -1,4 +1,4 @@
-import { addDoc, collection, doc, Firestore, getDocs, query, updateDoc, where, CollectionReference, DocumentData } from 'firebase/firestore';
+import { addDoc, collection, doc, getDocs, query, updateDoc, where } from 'firebase/firestore';
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 
@@ -16,14 +16,12 @@ const firebaseConfig = {
 export const FirebaseApp = initializeApp(firebaseConfig);
 export const FirebaseDB = getFirestore(FirebaseApp);
 
-//*----------------------------------- Entidad del servicio -----------------------------------------
-
-export class CheckInServiceTs {
-	eventId: string = '65747321300474a2240776e6'; //Todo: Aquí coloca el id del evento
-	experienceId: string = 'KbCLd9hZ3r'; //toDo: Aquí coloca el id de la experiencia asignada
-	participationCollection: CollectionReference<DocumentData, DocumentData>;
-	attendeesCollection: CollectionReference<DocumentData, DocumentData>;
-	experiences: Experience[] = [
+export class CheckInServiceJS {
+	eventId = '65747321300474a2240776e6'; // Todo: Aquí coloca el id del evento
+	experienceId = 'i0own9qlUQ'; // Todo: Aquí coloca el id de la experiencia asignada
+	participationCollection;
+	attendeesCollection;
+	experiences = [
 		{
 			id: 'i0own9qlUQ',
 			name: 'EXPERIENCIA HUBBELL - HOLOGRAMA INTERACTIVO',
@@ -54,46 +52,41 @@ export class CheckInServiceTs {
 		},
 	];
 
-	constructor(private readonly firebaseDB: Firestore) {
-		this.participationCollection = collection(this.firebaseDB, `event/${this.eventId}/usersActivityIntoExperiences`);
-		this.attendeesCollection = collection(this.firebaseDB, `/${this.eventId}_event_attendees`);
+	constructor(firebaseDB) {
+		this.participationCollection = collection(firebaseDB, `event/${this.eventId}/usersActivityIntoExperiences`);
+		this.attendeesCollection = collection(firebaseDB, `/${this.eventId}_event_attendees`);
 	}
 
-	async getUserParticipation({ userCode }: { userCode: string }) {
+	async getUserParticipation({ userCode }) {
 		const q = query(this.participationCollection, where('userCode', '==', userCode), where('experienceId', '==', this.experienceId));
-
 		const querySnapshot = await getDocs(q);
 
 		if (!querySnapshot.empty) {
-			const participation: Participation = {
+			const participation = {
 				id: querySnapshot.docs[0].id,
-				...(querySnapshot.docs[0].data() as Omit<Participation, 'id'>),
+				...querySnapshot.docs[0].data(),
 			};
-			return participation as Participation;
+			return participation;
 		} else {
 			return null;
 		}
 	}
 
 	async getUsersParticipation() {
-		const querySnapshot = await getDocs(this.participationCollection); // Obtener todos los documentos
-
+		const querySnapshot = await getDocs(this.participationCollection);
 		if (!querySnapshot.empty) {
-			// Mapeamos todos los documentos a un array de objetos Participation
-			const usersParticipation: Participation[] = querySnapshot.docs.map((doc) => ({
+			const usersParticipation = querySnapshot.docs.map((doc) => ({
 				id: doc.id,
-				...(doc.data() as Omit<Participation, 'id'>),
+				...doc.data(),
 			}));
-
 			return usersParticipation;
 		} else {
 			return [];
 		}
 	}
 
-	async saveUserParticipation({ userCode, checkInAt = new Date().toUTCString(), points = 0 }: SaveParticipationOfUser) {
+	async saveUserParticipation({ userCode, checkInAt = new Date().toUTCString(), points = 0 }) {
 		const attendee = await this.getAttendeeByUserCode({ userCode });
-
 		if (attendee === null) throw Error('404');
 
 		const previousParticipation = await this.getUserParticipation({ userCode });
@@ -101,15 +94,14 @@ export class CheckInServiceTs {
 			const docId = previousParticipation.id;
 			const userExperienceRef = doc(this.firebaseDB, `event/${this.eventId}/usersActivityIntoExperiences`, docId);
 			await updateDoc(userExperienceRef, { points });
-
 			return docId;
 		} else {
 			const experience = this.getExperienceById({ experienceId: this.experienceId });
 			const attendee = await this.getAttendeeByUserCode({ userCode });
 
-			if (!attendee) return console.error('El código no esta registrado');
+			if (!attendee) return console.error('El código no está registrado');
 
-			const newDoc: Omit<Participation, 'id'> = {
+			const newDoc = {
 				userCode,
 				checkInAt,
 				experienceId: this.experienceId,
@@ -123,28 +115,27 @@ export class CheckInServiceTs {
 		}
 	}
 
-	async getAttendeeByUserCode({ userCode }: { userCode: string }): Promise<Attendee | null> {
+	async getAttendeeByUserCode({ userCode }) {
 		const q = query(this.attendeesCollection, where('user_code', '==', userCode));
-
 		const querySnapshot = await getDocs(q);
 
 		if (!querySnapshot.empty) {
 			if (querySnapshot.docs.length > 1) throw new Error('Código asignado a dos usuarios');
 
 			const docId = querySnapshot.docs[0].id;
-			const data = querySnapshot.docs[0].data() as Omit<Attendee, 'id'>;
-			const attendee: Attendee = {
+			const data = querySnapshot.docs[0].data();
+			const attendee = {
 				id: docId,
 				...data,
 			};
-			return attendee as Attendee;
+			return attendee;
 		}
 		return null;
 	}
 
 	async getAllAttendee() {
 		const snapshot = await getDocs(this.attendeesCollection);
-		const attendees: any[] = [];
+		const attendees = [];
 		snapshot.forEach((doc) => {
 			const attendee = {
 				id: doc.id,
@@ -158,49 +149,11 @@ export class CheckInServiceTs {
 	getAllExperience() {
 		return this.experiences;
 	}
-	getExperienceById({ experienceId }: { experienceId: string }) {
-		const experience = this.experiences.find((experience) => experience.id === experienceId) as Experience;
+
+	getExperienceById({ experienceId }) {
+		const experience = this.experiences.find((experience) => experience.id === experienceId);
 		return experience;
 	}
 }
 
-export const checkInServiceTs = new CheckInServiceTs(FirebaseDB);
-
-//*------------------------------------------ Types ----------------------------------------------
-export interface Attendee {
-	id: string;
-	account_id: string;
-	private_reference_number: string;
-	printouts: number;
-	state_id: string;
-	properties: Properties;
-	rol_id: string;
-	checkedin_type: string;
-	event_id: string;
-	checked_in: boolean;
-	_id: string;
-	model_type: string;
-}
-
-export interface Properties {
-	email: string;
-	names: string;
-}
-
-export type SaveParticipationOfUser = Omit<Participation, 'id' | 'experienceId' | 'experienceName' | 'email' | 'names' | 'checkInAt'> & { checkInAt?: string };
-
-export type Participation = {
-	id: string;
-	experienceId: string;
-	experienceName: string;
-	userCode: string;
-	points?: number;
-	checkInAt: string;
-	email: string;
-	names: string;
-};
-
-export interface Experience {
-	id: string;
-	name: string;
-}
+export const checkInServiceJs = new CheckInServiceJS(FirebaseDB);

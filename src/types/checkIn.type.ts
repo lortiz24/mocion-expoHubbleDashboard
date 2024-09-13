@@ -1,4 +1,4 @@
-export type SaveParticipationOfUser = Omit<Participation, 'id' | 'experienceId' | 'experienceName' | 'email' | 'names'>;
+export type SaveParticipationOfUser = Omit<Participation, 'id' | 'experienceId' | 'experienceName' | 'email' | 'names' | 'checkInAt'> & { checkInAt?: string };
 
 export type Participation = {
 	id: string;
@@ -6,7 +6,7 @@ export type Participation = {
 	experienceName: string;
 	userCode: string;
 	points?: number;
-	checkIn?: boolean;
+	checkInAt: string;
 	email: string;
 	names: string;
 };

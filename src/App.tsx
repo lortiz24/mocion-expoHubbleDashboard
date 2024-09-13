@@ -8,7 +8,7 @@ import { Attendee } from './types/atendee.type';
 import { CheckInUser } from './components/checkInUser/CheckInUser';
 
 function App() {
-	const { attendees, isLoading } = useGetAllAttendee({ eventId: '659daf350aa568b224060b32' });
+	const { attendees, isLoading } = useGetAllAttendee();
 	const { closeDoor, isOpenDoor, openDoor, selectedItem, setSelectedItem } = useDoor<Attendee>();
 
 	const onAdministrateUser = (attendee: Attendee) => {
