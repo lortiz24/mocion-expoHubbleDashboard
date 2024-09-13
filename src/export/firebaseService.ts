@@ -1,8 +1,22 @@
-import { addDoc, collection, CollectionReference, doc, DocumentData, Firestore, getDocs, query, updateDoc, where } from 'firebase/firestore';
-import { FirebaseDB } from '../config/firebase.config';
-import { Participation, SaveParticipationOfUser } from '../types/checkIn.type';
-import { Attendee } from '../types/atendee.type';
-import { Experience } from '../types/experience.type';
+import { addDoc, collection, doc, Firestore, getDocs, query, updateDoc, where, CollectionReference, DocumentData } from 'firebase/firestore';
+import { initializeApp } from 'firebase/app';
+import { getFirestore } from 'firebase/firestore';
+
+const firebaseConfig = {
+	apiKey: 'AIzaSyAohyXq3R4t3ao7KFzLDY7W6--g6kOuS7Q',
+	authDomain: 'eviusauthdev.firebaseapp.com',
+	databaseURL: 'https://eviusauthdev-default-rtdb.firebaseio.com',
+	projectId: 'eviusauthdev',
+	storageBucket: 'eviusauthdev.appspot.com',
+	messagingSenderId: '86708016609',
+	appId: '1:86708016609:web:129d087ffa3077a1ef2ea0',
+};
+
+// Initialize Firebase
+export const FirebaseApp = initializeApp(firebaseConfig);
+export const FirebaseDB = getFirestore(FirebaseApp);
+
+//*----------------------------------- Entidad del servicio -----------------------------------------
 
 export class CheckInService {
 	eventId: string = '65747321300474a2240776e6'; //Todo: Aquí coloca el id del evento
@@ -99,7 +113,7 @@ export class CheckInService {
 			const attendee = await this.getAttendeeByUserCode({ userCode });
 
 			if (!attendee) return console.error('El código no esta registrado');
-			
+
 			const newDoc: Omit<Participation, 'id'> = {
 				userCode,
 				experienceId: this.experienceId,
@@ -156,3 +170,42 @@ export class CheckInService {
 }
 
 export const checkInService = new CheckInService(FirebaseDB);
+
+//*------------------------------------------ Types ----------------------------------------------
+export interface Attendee {
+	id: string;
+	account_id: string;
+	private_reference_number: string;
+	printouts: number;
+	state_id: string;
+	properties: Properties;
+	rol_id: string;
+	checkedin_type: string;
+	event_id: string;
+	checked_in: boolean;
+	_id: string;
+	model_type: string;
+}
+
+export interface Properties {
+	email: string;
+	names: string;
+}
+
+export type SaveParticipationOfUser = Omit<Participation, 'id' | 'experienceName' | 'email' | 'names' | 'experienceId'>;
+
+export type Participation = {
+	id: string;
+	experienceId: string;
+	experienceName: string;
+	userCode: string;
+	points?: number;
+	checkIn?: boolean;
+	email: string;
+	names: string;
+};
+
+export interface Experience {
+	id: string;
+	name: string;
+}

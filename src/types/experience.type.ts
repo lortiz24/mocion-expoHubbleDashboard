@@ -1,4 +1,4 @@
 export interface Experience {
-    id:   string;
-    name: string;
+	id: string;
+	name: string;
 }

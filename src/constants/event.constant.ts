@@ -1,2 +1,0 @@
-export const EVENT_ID = '65747321300474a2240776e6';
-export const EXPERIENCE_ID = '0KRq9v35D3e4IkhuQPFx';
