@@ -1,4 +1,4 @@
-import { addDoc, collection, CollectionReference, doc, DocumentData, Firestore, getDocs, query, updateDoc, where } from 'firebase/firestore';
+import { addDoc, collection, CollectionReference, doc, DocumentData, Firestore, getDocs, onSnapshot, query, updateDoc, where } from 'firebase/firestore';
 import { FirebaseDB } from '../config/firebase.config';
 import { Participation, SaveParticipationOfUser } from '../types/checkIn.type';
 import { Attendee } from '../types/atendee.type';
@@ -126,6 +126,53 @@ export class CheckInService {
 		} else {
 			return [];
 		}
+	}
+	listeningUsersParticipation(onSetUsersParticipants: (data: Participation[]) => void) {
+		return onSnapshot(
+			this.participationCollection,
+			(querySnapshot) => {
+				if (!querySnapshot.empty) {
+					// Mapeamos todos los documentos a un array de objetos Participation
+					const usersParticipation: Participation[] = querySnapshot.docs.map((doc) => ({
+						id: doc.id,
+						...(doc.data() as Omit<Participation, 'id'>),
+					}));
+					onSetUsersParticipants(usersParticipation);
+					// Aquí puedes manejar los datos actualizados, por ejemplo, guardarlos en el estado
+				} else {
+					onSetUsersParticipants([]);
+					console.log('No hay participaciones');
+				}
+			},
+			(error) => {
+				console.error('Error al escuchar cambios en la participación:', error);
+			}
+		);
+	}
+
+	listeningParticipationByUser({ onSetUsersParticipants, userCode }: { userCode: string; onSetUsersParticipants: (data: Participation[]) => void }) {
+		const filteredQuery = query(this.participationCollection, where('userCode', '==', userCode));
+
+		return onSnapshot(
+			filteredQuery,
+			(querySnapshot) => {
+				if (!querySnapshot.empty) {
+					// Mapeamos todos los documentos a un array de objetos Participation
+					const usersParticipation: Participation[] = querySnapshot.docs.map((doc) => ({
+						id: doc.id,
+						...(doc.data() as Omit<Participation, 'id'>),
+					}));
+					onSetUsersParticipants(usersParticipation);
+					console.log('Participaciones actualizadas:', usersParticipation);
+				} else {
+					console.log('No hay participaciones');
+					onSetUsersParticipants([]);
+				}
+			},
+			(error) => {
+				console.error('Error al escuchar cambios en la participación:', error);
+			}
+		);
 	}
 
 	async getAllAttendee() {

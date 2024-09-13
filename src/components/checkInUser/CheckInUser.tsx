@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { showConfirmModal } from '../../helpers/confirmFeedbackManagment';
 import { ConfirmModalType } from '../../types/confirmModal';
 import { checkInService } from '../../services/checkin.service';
-/* import { CheckInServiceTs } from '../../export/firebaseService'; */
 
 export const CheckInUser = () => {
 	const [userCode, setUserCode] = useState('');

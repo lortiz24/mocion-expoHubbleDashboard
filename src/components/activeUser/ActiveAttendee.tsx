@@ -1,23 +1,51 @@
 import { Paper } from '@mantine/core';
-import { useGetAllExperiencesByEvent } from '../../hooks/useGetAllExperiencesByEvent';
 import { MyTable } from '../myTable/EviusTable';
-import { Attendee } from '../../types/atendee.type';
+import { GroupedParticipation } from '../../hooks/useListeningParticipationByUser';
+import { checkInService } from '../../services/checkin.service';
 
 type Props = {
-	selectedItem: Attendee | undefined;
+	selectedItem: GroupedParticipation;
 };
 export const ActiveAttendee = (props: Props) => {
 	const { selectedItem } = props;
-	const { experiences, isLoading: isLoadingExperiences } = useGetAllExperiencesByEvent({ eventId: '659daf350aa568b224060b32' });
-    console.log('experiences', experiences)
+
+	const tablaDeExperiencias = checkInService.getAllExperience().map((experiencia) => {
+		const participationIntoExperience = selectedItem.participations.find((participation) => participation.experienceId === experiencia.id);
+		return {
+			experiencia: experiencia.name,
+			checkIn: !!participationIntoExperience,
+			checkInAt: participationIntoExperience?.checkInAt,
+			points: participationIntoExperience?.points,
+		};
+	});
+
+	const reOrderElements = tablaDeExperiencias.sort((a, b) => {
+		return a.checkIn === b.checkIn ? 0 : a.checkIn ? -1 : 1;
+	});
+
 	return (
 		<Paper shadow='xl' p={'xl'} style={{ rowGap: '20px' }}>
 			<MyTable
-				elements={experiences}
+				elements={reOrderElements}
 				columns={[
 					{
-						accessor: 'name',
-						header: 'Nombre',
+						accessor: 'experiencia',
+						header: 'Experiencia',
+					},
+					{
+						accessor: 'checkIn',
+						header: 'Participo',
+						render({ value }) {
+							return <>{value ? 'Si' : 'No'}</>;
+						},
+					},
+					{
+						accessor: 'checkInAt',
+						header: 'Fecha participación',
+					},
+					{
+						accessor: 'points',
+						header: 'Puntos',
 					},
 				]}
 			/>
