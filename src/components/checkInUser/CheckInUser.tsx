@@ -1,5 +1,5 @@
-import { Button, Center, Group, Paper, Stack, Text, TextInput } from '@mantine/core';
-import { useState } from 'react';
+import { Button, Center, Group, Paper, Select, Stack, Text, TextInput } from '@mantine/core';
+import { useMemo, useState } from 'react';
 import { showConfirmModal } from '../../helpers/confirmFeedbackManagment';
 import { ConfirmModalType } from '../../types/confirmModal';
 import { checkInService } from '../../services/checkin.service';
@@ -8,6 +8,7 @@ export const CheckInUser = () => {
 	const [userCode, setUserCode] = useState('');
 	const [isSaving, setIsSaving] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
+	const [experienceSelected, setExperienceSelected] = useState(checkInService.getExperienceId());
 
 	const handleError = (message: string) => {
 		setErrorMessage(message);
@@ -75,22 +76,37 @@ export const CheckInUser = () => {
 		}
 	};
 
+	const allExperience = useMemo(() => checkInService.getAllExperience().map((experience) => ({ label: experience.name, value: experience.id })), []);
+
 	return (
 		<Paper shadow='xl' p='xl'>
 			<Center>
 				<Stack px='md'>
-					<TextInput
-						name='userCode'
-						label='Código de usuario'
-						placeholder='Ingrese el código'
-						miw={400}
-						value={userCode}
-						onChange={({ target: { value } }) => {
-							setUserCode(value);
-							if (errorMessage) setErrorMessage(''); // Limpia el error al cambiar el input
-						}}
-						error={errorMessage}
-					/>
+					<Group>
+						<TextInput
+							name='userCode'
+							label='Código de usuario'
+							placeholder='Ingrese el código'
+							miw={400}
+							value={userCode}
+							onChange={({ target: { value } }) => {
+								setUserCode(value);
+								if (errorMessage) setErrorMessage(''); // Limpia el error al cambiar el input
+							}}
+							error={errorMessage}
+						/>
+						<Select
+							value={experienceSelected}
+							miw={400}
+							label='Experiencia'
+							data={allExperience}
+							searchable
+							onChange={(value) => {
+								setExperienceSelected(value ?? '');
+								checkInService.setExperienceId(value ?? '');
+							}}
+						/>
+					</Group>
 					<Group justify='end'>
 						<Button onClick={validateUserCode} loading={isSaving} disabled={isSaving || !!errorMessage}>
 							Enviar

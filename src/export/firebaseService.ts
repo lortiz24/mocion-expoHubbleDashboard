@@ -75,22 +75,6 @@ export class CheckInServiceTs {
 		}
 	}
 
-	async getUsersParticipation() {
-		const querySnapshot = await getDocs(this.participationCollection); // Obtener todos los documentos
-
-		if (!querySnapshot.empty) {
-			// Mapeamos todos los documentos a un array de objetos Participation
-			const usersParticipation: Participation[] = querySnapshot.docs.map((doc) => ({
-				id: doc.id,
-				...(doc.data() as Omit<Participation, 'id'>),
-			}));
-
-			return usersParticipation;
-		} else {
-			return [];
-		}
-	}
-
 	async saveUserParticipation({ userCode, checkInAt = new Date().toUTCString(), points = 0 }: SaveParticipationOfUser) {
 		const attendee = await this.getAttendeeByUserCode({ userCode });
 
@@ -142,22 +126,6 @@ export class CheckInServiceTs {
 		return null;
 	}
 
-	async getAllAttendee() {
-		const snapshot = await getDocs(this.attendeesCollection);
-		const attendees: any[] = [];
-		snapshot.forEach((doc) => {
-			const attendee = {
-				id: doc.id,
-				...doc.data(),
-			};
-			attendees.push(attendee);
-		});
-		return attendees;
-	}
-
-	getAllExperience() {
-		return this.experiences;
-	}
 	getExperienceById({ experienceId }: { experienceId: string }) {
 		const experience = this.experiences.find((experience) => experience.id === experienceId) as Experience;
 		return experience;

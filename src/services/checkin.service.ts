@@ -5,7 +5,7 @@ import { Attendee } from '../types/atendee.type';
 import { Experience } from '../types/experience.type';
 
 export class CheckInService {
-	eventId: string = '66e4928e446844dcb6079aa2'; //Todo: Aquí coloca el id del evento
+	readonly eventId: string = '66e4928e446844dcb6079aa2'; //Todo: Aquí coloca el id del evento
 	experienceId: string = 'KbCLd9hZ3r'; //toDo: Aquí coloca el id de la experiencia asignada
 	participationCollection: CollectionReference<DocumentData, DocumentData>;
 	attendeesCollection: CollectionReference<DocumentData, DocumentData>;
@@ -43,6 +43,14 @@ export class CheckInService {
 	constructor(private readonly firebaseDB: Firestore) {
 		this.participationCollection = collection(this.firebaseDB, `event/${this.eventId}/usersActivityIntoExperiences`);
 		this.attendeesCollection = collection(this.firebaseDB, `/${this.eventId}_event_attendees`);
+	}
+
+	setExperienceId(experienceId: string) {
+		if (this.experiences.some((experience) => experience.id === experienceId)) this.experienceId = experienceId;
+	}
+
+	getExperienceId() {
+		return this.experienceId;
 	}
 
 	async getUserParticipation({ userCode }: { userCode: string }) {
