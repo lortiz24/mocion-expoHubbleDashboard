@@ -16,7 +16,7 @@ const firebaseConfig = {
 export const FirebaseApp = initializeApp(firebaseConfig);
 export const FirebaseDB = getFirestore(FirebaseApp);
 
-export class CheckInService {
+export class CheckInServiceJs {
     constructor(firebaseDB) {
         this.eventId = '65747321300474a2240776e6'; //Todo: Aquí coloca el id del evento
         this.experienceId = 'KbCLd9hZ3r'; //toDo: Aquí coloca el id de la experiencia asignada
@@ -138,4 +138,4 @@ export class CheckInService {
 }
 
 
-export const checkInServiceJs = new CheckInServiceJS(FirebaseDB);
+export const checkInServiceJs = new CheckInServiceJs(FirebaseDB);
