@@ -1,4 +1,4 @@
-import { addDoc, collection, doc, Firestore, getDocs, query, updateDoc, where, CollectionReference, DocumentData } from 'firebase/firestore';
+import { addDoc, collection, doc, Firestore, getDocs, query, updateDoc, where, CollectionReference, DocumentData, Timestamp } from 'firebase/firestore';
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 
@@ -19,7 +19,7 @@ export const FirebaseDB = getFirestore(FirebaseApp);
 //*----------------------------------- Entidad del servicio -----------------------------------------
 
 export class CheckInServiceTs {
-	eventId: string = '65747321300474a2240776e6'; //Todo: Aquí coloca el id del evento
+	eventId: string = '66e4928e446844dcb6079aa2'; //Todo: Aquí coloca el id del evento
 	experienceId: string = 'KbCLd9hZ3r'; //toDo: Aquí coloca el id de la experiencia asignada
 	participationCollection: CollectionReference<DocumentData, DocumentData>;
 	attendeesCollection: CollectionReference<DocumentData, DocumentData>;
@@ -75,16 +75,24 @@ export class CheckInServiceTs {
 		}
 	}
 
-	async saveUserParticipation({ userCode, checkInAt = new Date().toUTCString(), points = 0 }: SaveParticipationOfUser) {
+	async saveUserParticipation({ userCode, points }: SaveParticipationOfUser) {
 		const attendee = await this.getAttendeeByUserCode({ userCode });
+		const now = new Date();
+
+		const checkInAt = Timestamp.fromDate(now);
+		const updateAt = Timestamp.fromDate(now);
 
 		if (attendee === null) throw Error('404');
 
 		const previousParticipation = await this.getUserParticipation({ userCode });
+
 		if (previousParticipation) {
 			const docId = previousParticipation.id;
 			const userExperienceRef = doc(this.firebaseDB, `event/${this.eventId}/usersActivityIntoExperiences`, docId);
-			await updateDoc(userExperienceRef, { points });
+
+			const newPoints = points === undefined ? 0 : points;
+
+			await updateDoc(userExperienceRef, { points: newPoints, updateAt });
 
 			return docId;
 		} else {
@@ -98,9 +106,10 @@ export class CheckInServiceTs {
 				checkInAt,
 				experienceId: this.experienceId,
 				experienceName: experience.name,
-				points,
+				points: points === undefined ? 0 : points,
 				email: attendee.properties.email,
 				names: attendee.properties.names,
+				updateAt,
 			};
 			const newDocRef = await addDoc(this.participationCollection, newDoc);
 			return newDocRef.id;
@@ -155,7 +164,7 @@ export interface Properties {
 	names: string;
 }
 
-export type SaveParticipationOfUser = Omit<Participation, 'id' | 'experienceId' | 'experienceName' | 'email' | 'names' | 'checkInAt'> & { checkInAt?: string };
+export type SaveParticipationOfUser = Pick<Participation, 'userCode' | 'points'>;
 
 export type Participation = {
 	id: string;
@@ -163,9 +172,10 @@ export type Participation = {
 	experienceName: string;
 	userCode: string;
 	points?: number;
-	checkInAt: string;
+	checkInAt: Timestamp;
 	email: string;
 	names: string;
+	updateAt: Timestamp;
 };
 
 export interface Experience {

@@ -1,10 +1,9 @@
 import { useState, useMemo } from 'react';
-/* import { checkInService } from '../services/checkin.service'; */
+import { checkInService } from '../services/checkin.service';
 import { showConfirmModal } from '../helpers/confirmFeedbackManagment';
 import { ConfirmModalType } from '../types/confirmModal';
 import { Paper, Stack, Text } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { checkInServiceTs as checkInService } from '../export/firebaseService';
 
 export const useCheckInUser = () => {
 	const [isSaving, setIsSaving] = useState(false);
