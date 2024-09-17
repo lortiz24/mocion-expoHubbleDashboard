@@ -1,4 +1,4 @@
-import { addDoc, collection, CollectionReference, doc, DocumentData, Firestore, getDocs, onSnapshot, query, updateDoc, where } from 'firebase/firestore';
+import { addDoc, collection, CollectionReference, doc, DocumentData, Firestore, getDocs, onSnapshot, query, Timestamp, updateDoc, where } from 'firebase/firestore';
 import { FirebaseDB } from '../config/firebase.config';
 import { Participation, SaveParticipationOfUser } from '../types/checkIn.type';
 import { Attendee } from '../types/atendee.type';
@@ -69,16 +69,24 @@ export class CheckInService {
 		}
 	}
 
-	async saveUserParticipation({ userCode, checkInAt = new Date().toUTCString(), points = 0 }: SaveParticipationOfUser) {
+	async saveUserParticipation({ userCode, points }: SaveParticipationOfUser) {
 		const attendee = await this.getAttendeeByUserCode({ userCode });
+		const now = new Date();
+
+		const checkInAt = Timestamp.fromDate(now);
+		const updateAt = Timestamp.fromDate(now);
 
 		if (attendee === null) throw Error('404');
 
 		const previousParticipation = await this.getUserParticipation({ userCode });
+
 		if (previousParticipation) {
 			const docId = previousParticipation.id;
 			const userExperienceRef = doc(this.firebaseDB, `event/${this.eventId}/usersActivityIntoExperiences`, docId);
-			await updateDoc(userExperienceRef, { points });
+
+			const newPoints = points === undefined ? 0 : points;
+			
+			await updateDoc(userExperienceRef, { points: newPoints, updateAt });
 
 			return docId;
 		} else {
@@ -92,9 +100,10 @@ export class CheckInService {
 				checkInAt,
 				experienceId: this.experienceId,
 				experienceName: experience.name,
-				points,
+				points: points === undefined ? 0 : points,
 				email: attendee.properties.email,
 				names: attendee.properties.names,
+				updateAt,
 			};
 			const newDocRef = await addDoc(this.participationCollection, newDoc);
 			return newDocRef.id;
