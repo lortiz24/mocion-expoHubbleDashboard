@@ -42,6 +42,10 @@ export const ActiveAttendee = (props: Props) => {
 					{
 						accessor: 'checkInAt',
 						header: 'Fecha participación',
+						render({ record }) {
+							const date = record.checkInAt?.toDate();
+							return <>{date?.toLocaleString()}</>;
+						},
 					},
 					{
 						accessor: 'points',
