@@ -7,7 +7,7 @@ export type Participation = {
 	experienceId: string;
 	experienceName: string;
 	userCode: string;
-	points?: number;
+	points: number;
 	checkInAt: Timestamp;
 	email: string;
 	names: string;

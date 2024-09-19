@@ -21,6 +21,9 @@ export const useCheckInUser = () => {
 		},
 	});
 
+	const resetForm = () => {
+		checkInForm.reset();
+	};
 	const handleError = (message: string) => {
 		checkInForm.setFieldError('userCode', message);
 		setIsSaving(false);
@@ -34,6 +37,7 @@ export const useCheckInUser = () => {
 		try {
 			await checkInService.saveUserParticipation({ userCode, points });
 			setIsSaving(false);
+			resetForm();
 		} catch (error) {
 			const myError = error as Error;
 			if (myError.message === '404') return handleError('El usuario no está registrado');
@@ -71,7 +75,9 @@ export const useCheckInUser = () => {
 					</Stack>
 				),
 				onConfirm: () => onSaveCheckIn(userCode, points === 0 ? undefined : points),
-				onCancel: () => setIsSaving(false),
+				onCancel: () => {
+					setIsSaving(false);
+				},
 			});
 		} catch (error) {
 			handleError('Error al validar el código de usuario');
