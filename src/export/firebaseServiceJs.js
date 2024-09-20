@@ -16,126 +16,131 @@ const firebaseConfig = {
 export const FirebaseApp = initializeApp(firebaseConfig);
 export const FirebaseDB = getFirestore(FirebaseApp);
 
-export class CheckInServiceJs {
-    constructor(firebaseDB) {
-        this.eventId = '65747321300474a2240776e6'; //Todo: Aquí coloca el id del evento
-        this.experienceId = 'KbCLd9hZ3r'; //toDo: Aquí coloca el id de la experiencia asignada
-        this.firebaseDB = firebaseDB;
-        this.participationCollection = collection(this.firebaseDB, `event/${this.eventId}/usersActivityIntoExperiences`);
-        this.attendeesCollection = collection(this.firebaseDB, `/${this.eventId}_event_attendees`);
-        this.experiences = [
-            {
-                id: 'i0own9qlUQ',
-                name: 'EXPERIENCIA HUBBELL - HOLOGRAMA INTERACTIVO',
-            },
-            {
-                id: 'KbCLd9hZ3r',
-                name: 'EXPERIENCIA WIRING - JUEGO DE DESTREZA EN TÓTEM',
-            },
-            {
-                id: 'cyhH5yUGs5',
-                name: 'CHANCE LINEMAN TOOLS - MEMORY MATCH',
-            },
-            {
-                id: 'HI0qLLtutT',
-                name: 'EXPERIENCIA KILLARK - TRIVIA EN TÓTEM',
-            },
-            {
-                id: 'Fjkyw8lfUy',
-                name: 'EXPERIENCIA BURNDY - REALIDAD VIRTUAL CON OCULUS',
-            },
-            {
-                id: 'jZ8JxL0Vue',
-                name: 'EXPERIENCIA WIRING - DETECCIÓN DE FALLAS VR',
-            },
-            {
-                id: '45VD1hir8z',
-                name: 'EXPERIENCIA RACO - JUEGO DE DESTREZA EN TÓTEM',
-            },
-        ];
-    }
+export class CheckInService {
+	eventId = '66e4928e446844dcb6079aa2'; //Todo: Aquí coloca el id del evento
+	experienceId = 'KbCLd9hZ3r'; //toDo: Aquí coloca el id de la experiencia asignada
+	participationCollection;
+	attendeesCollection;
+	experiences = [
+		{
+			id: 'i0own9qlUQ',
+			name: 'EXPERIENCIA HUBBELL - HOLOGRAMA INTERACTIVO',
+		},
+		{
+			id: 'KbCLd9hZ3r',
+			name: 'EXPERIENCIA WIRING - JUEGO DE DESTREZA EN TÓTEM',
+		},
+		{
+			id: 'cyhH5yUGs5',
+			name: 'CHANCE LINEMAN TOOLS - MEMORY MATCH',
+		},
+		{
+			id: 'HI0qLLtutT',
+			name: 'EXPERIENCIA KILLARK - TRIVIA EN TÓTEM',
+		},
+		{
+			id: 'Fjkyw8lfUy',
+			name: 'EXPERIENCIA BURNDY - REALIDAD VIRTUAL CON OCULUS',
+		},
+		{
+			id: 'jZ8JxL0Vue',
+			name: 'EXPERIENCIA WIRING - DETECCIÓN DE FALLAS VR',
+		},
+		{
+			id: '45VD1hir8z',
+			name: 'EXPERIENCIA RACO - JUEGO DE DESTREZA EN TÓTEM',
+		},
+	];
 
-    async getUserParticipation({ userCode }) {
-        const q = query(this.participationCollection, where('userCode', '==', userCode), where('experienceId', '==', this.experienceId));
+	constructor(firebaseDB) {
+		this.participationCollection = collection(firebaseDB, `event/${this.eventId}/usersActivityIntoExperiences`);
+		this.attendeesCollection = collection(firebaseDB, `/${this.eventId}_event_attendees`);
+	}
 
-        const querySnapshot = await getDocs(q);
+	async getUserParticipation({ userCode }) {
+		const q = query(this.participationCollection, where('userCode', '==', userCode), where('experienceId', '==', this.experienceId));
+		const querySnapshot = await getDocs(q);
 
-        if (!querySnapshot.empty) {
-            const participation = {
-                id: querySnapshot.docs[0].id,
-                ...querySnapshot.docs[0].data(),
-            };
-            return participation;
-        } else {
-            return null;
-        }
-    }
+		if (!querySnapshot.empty) {
+			const participation = {
+				id: querySnapshot.docs[0].id,
+				...querySnapshot.docs[0].data(),
+			};
+			return participation;
+		} else {
+			return null;
+		}
+	}
 
-    async saveUserParticipation({ userCode, points }) {
-        const attendee = await this.getAttendeeByUserCode({ userCode });
-        const now = new Date();
+	async saveUserParticipation({ userCode, points, newParticipation = false }) {
+		const attendee = await this.getAttendeeByUserCode({ userCode });
+		const now = new Date();
 
-        const checkInAt = Timestamp.fromDate(now);
-        const updateAt = Timestamp.fromDate(now);
+		const checkInAt = Timestamp.fromDate(now);
+		const updateAt = Timestamp.fromDate(now);
 
-        if (attendee === null) throw Error('404');
+		if (attendee === null) throw Error('404');
 
-        const previousParticipation = await this.getUserParticipation({ userCode });
+		const previousParticipation = await this.getUserParticipation({ userCode });
 
-        if (previousParticipation) {
-            const docId = previousParticipation.id;
-            const userExperienceRef = doc(this.firebaseDB, `event/${this.eventId}/usersActivityIntoExperiences`, docId);
+		if (previousParticipation) {
+			const docId = previousParticipation.id;
+			const userExperienceRef = doc(this.firebaseDB, `event/${this.eventId}/usersActivityIntoExperiences`, docId);
 
-            const newPoints = points === undefined ? 0 : points;
+			const newPoints = points === undefined ? 0 : points;
 
-            await updateDoc(userExperienceRef, { points: newPoints, updateAt });
+			const newParticipationDateList = [...previousParticipation.participationDateList];
+			if (newParticipation) {
+				newParticipationDateList.push(checkInAt);
+			}
 
-            return docId;
-        } else {
-            const experience = this.getExperienceById({ experienceId: this.experienceId });
-            const attendee = await this.getAttendeeByUserCode({ userCode });
+			await updateDoc(userExperienceRef, { points: newPoints, updateAt, participationDateList: newParticipationDateList });
 
-            if (!attendee) return console.error('El código no está registrado');
+			return docId;
+		} else {
+			const experience = this.getExperienceById({ experienceId: this.experienceId });
+			const attendee = await this.getAttendeeByUserCode({ userCode });
 
-            const newDoc = {
-                userCode,
-                checkInAt,
-                experienceId: this.experienceId,
-                experienceName: experience.name,
-                points: points === undefined ? 0 : points,
-                email: attendee.properties.email,
-                names: attendee.properties.names,
-                updateAt,
-            };
-            const newDocRef = await addDoc(this.participationCollection, newDoc);
-            return newDocRef.id;
-        }
-    }
+			if (!attendee) return console.error('El código no está registrado');
 
-    async getAttendeeByUserCode({ userCode }) {
-        const q = query(this.attendeesCollection, where('user_code', '==', userCode));
+			const newDoc = {
+				participationDateList: [checkInAt],
+				userCode,
+				checkInAt,
+				experienceId: this.experienceId,
+				experienceName: experience.name,
+				points: points === undefined ? 0 : points,
+				email: attendee.properties.email,
+				names: attendee.properties.names,
+				updateAt,
+			};
+			const newDocRef = await addDoc(this.participationCollection, newDoc);
+			return newDocRef.id;
+		}
+	}
 
-        const querySnapshot = await getDocs(q);
+	async getAttendeeByUserCode({ userCode }) {
+		const q = query(this.attendeesCollection, where('user_code', '==', userCode));
+		const querySnapshot = await getDocs(q);
 
-        if (!querySnapshot.empty) {
-            if (querySnapshot.docs.length > 1) throw new Error('Código asignado a dos usuarios');
+		if (!querySnapshot.empty) {
+			if (querySnapshot.docs.length > 1) throw new Error('Código asignado a dos usuarios');
 
-            const docId = querySnapshot.docs[0].id;
-            const data = querySnapshot.docs[0].data();
-            const attendee = {
-                id: docId,
-                ...data,
-            };
-            return attendee;
-        }
-        return null;
-    }
+			const docId = querySnapshot.docs[0].id;
+			const data = querySnapshot.docs[0].data();
+			const attendee = {
+				id: docId,
+				...data,
+			};
+			return attendee;
+		}
+		return null;
+	}
 
-    getExperienceById({ experienceId }) {
-        const experience = this.experiences.find((experience) => experience.id === experienceId);
-        return experience;
-    }
+	getExperienceById({ experienceId }) {
+		const experience = this.experiences.find((experience) => experience.id === experienceId);
+		return experience;
+	}
 }
-
 
 export const checkInServiceJs = new CheckInServiceJs(FirebaseDB);

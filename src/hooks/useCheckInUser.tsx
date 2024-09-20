@@ -35,7 +35,7 @@ export const useCheckInUser = () => {
 	};
 	const onSaveCheckIn = async (userCode: string, points?: number) => {
 		try {
-			await checkInService.saveUserParticipation({ userCode, points });
+			await checkInService.saveUserParticipation({ userCode, points, newParticipation: true });
 			setIsSaving(false);
 			resetForm();
 		} catch (error) {

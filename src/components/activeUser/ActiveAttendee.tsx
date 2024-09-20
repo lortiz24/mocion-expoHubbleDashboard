@@ -26,6 +26,7 @@ export const ActiveAttendee = (props: Props) => {
 	return (
 		<Paper shadow='xl' p={'xl'} style={{ rowGap: '20px' }}>
 			<MyTable
+				scrollContainerProps={{ minWidth: 400 }}
 				elements={reOrderElements}
 				columns={[
 					{

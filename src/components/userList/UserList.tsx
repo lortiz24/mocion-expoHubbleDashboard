@@ -32,6 +32,7 @@ export const UserList = () => {
 					</Button>
 				</Group>
 				<MyTable
+					scrollContainerProps={{ minWidth: 400 }}
 					withPagination
 					elements={filteredList}
 					columns={[

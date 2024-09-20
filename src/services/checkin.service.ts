@@ -69,7 +69,7 @@ export class CheckInService {
 		}
 	}
 
-	async saveUserParticipation({ userCode, points }: SaveParticipationOfUser) {
+	async saveUserParticipation({ userCode, points, newParticipation = false }: SaveParticipationOfUser) {
 		const attendee = await this.getAttendeeByUserCode({ userCode });
 		const now = new Date();
 
@@ -85,8 +85,13 @@ export class CheckInService {
 			const userExperienceRef = doc(this.firebaseDB, `event/${this.eventId}/usersActivityIntoExperiences`, docId);
 
 			const newPoints = points === undefined ? 0 : points;
-			
-			await updateDoc(userExperienceRef, { points: newPoints, updateAt });
+
+			const newParticipationDateList: Timestamp[] = [...previousParticipation.participationDateList];
+			if (newParticipation) {
+				newParticipationDateList.push(checkInAt);
+			}
+
+			await updateDoc(userExperienceRef, { points: newPoints, updateAt, participationDateList: newParticipationDateList });
 
 			return docId;
 		} else {
@@ -96,6 +101,7 @@ export class CheckInService {
 			if (!attendee) return console.error('El código no esta registrado');
 
 			const newDoc: Omit<Participation, 'id'> = {
+				participationDateList: [checkInAt],
 				userCode,
 				checkInAt,
 				experienceId: this.experienceId,
