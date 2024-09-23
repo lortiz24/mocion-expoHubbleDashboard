@@ -84,7 +84,7 @@ export class CheckInService {
 			const docId = previousParticipation.id;
 			const userExperienceRef = doc(this.firebaseDB, `event/${this.eventId}/usersActivityIntoExperiences`, docId);
 
-			const newPoints = points === undefined ? 0 : points;
+			const newPoints = points === undefined ? previousParticipation.points : points;
 
 			const newParticipationDateList: Timestamp[] = [...previousParticipation.participationDateList];
 			if (newParticipation) {

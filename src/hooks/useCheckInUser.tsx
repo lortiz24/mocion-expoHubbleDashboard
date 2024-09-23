@@ -74,7 +74,7 @@ export const useCheckInUser = () => {
 						</Paper>
 					</Stack>
 				),
-				onConfirm: () => onSaveCheckIn(userCode, points === 0 ? undefined : points),
+				onConfirm: () => onSaveCheckIn(userCode, points === 0 ? (previewParticipation?.points ?? undefined ): points),
 				onCancel: () => {
 					setIsSaving(false);
 				},

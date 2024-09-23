@@ -3,14 +3,14 @@ import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-	apiKey: "AIzaSyDDnc9WHXf4CWwXCVggeiarYGu_xBgibJY",
-	authDomain: "eviusauth.firebaseapp.com",
-	databaseURL: "https://eviusauth.firebaseio.com",
-	projectId: "eviusauth",
-	storageBucket: "eviusauth.appspot.com",
-	messagingSenderId: "400499146867",
-	appId: "1:400499146867:web:5d0021573a43a1df"
-  };
+	apiKey: 'AIzaSyDDnc9WHXf4CWwXCVggeiarYGu_xBgibJY',
+	authDomain: 'eviusauth.firebaseapp.com',
+	databaseURL: 'https://eviusauth.firebaseio.com',
+	projectId: 'eviusauth',
+	storageBucket: 'eviusauth.appspot.com',
+	messagingSenderId: '400499146867',
+	appId: '1:400499146867:web:5d0021573a43a1df',
+};
 
 // Initialize Firebase
 export const FirebaseApp = initializeApp(firebaseConfig);
@@ -26,19 +26,19 @@ export class CheckInServiceTs {
 	experiences: Experience[] = [
 		{
 			id: 'i0own9qlUQ',
-			name: 'EXPERIENCIA HUBBELL - HOLOGRAMA INTERACTIVO',
+			name: 'EXPERIENCIA HUBBELL - HOLOGRAMA INTERACTIVO', //Carlos Guerra
 		},
 		{
 			id: 'KbCLd9hZ3r',
-			name: 'EXPERIENCIA WIRING - JUEGO DE DESTREZA EN TÓTEM',
+			name: 'EXPERIENCIA BURNDY - RACO - WIEGMANN - JUEGO DE DESTREZA EN TÓTEM', //Alejandra
 		},
 		{
 			id: 'cyhH5yUGs5',
-			name: 'CHANCE LINEMAN TOOLS - MEMORY MATCH',
+			name: 'CHANCE LINEMAN TOOLS - MEMORY MATCH', //Carlos Guerra
 		},
 		{
 			id: 'HI0qLLtutT',
-			name: 'EXPERIENCIA KILLARK - TRIVIA EN TÓTEM',
+			name: 'EXPERIENCIA KILLARK - TRIVIA EN TÓTEM', //Fabian Salcedo
 		},
 		{
 			id: 'Fjkyw8lfUy',
@@ -50,7 +50,7 @@ export class CheckInServiceTs {
 		},
 		{
 			id: '45VD1hir8z',
-			name: 'EXPERIENCIA RACO - JUEGO DE DESTREZA EN TÓTEM',
+			name: 'EXPERIENCIA RACO - JUEGO DE DESTREZA EN TÓTEM', //Fabian Salcedo
 		},
 	];
 
@@ -90,7 +90,7 @@ export class CheckInServiceTs {
 			const docId = previousParticipation.id;
 			const userExperienceRef = doc(this.firebaseDB, `event/${this.eventId}/usersActivityIntoExperiences`, docId);
 
-			const newPoints = points === undefined ? 0 : points;
+			const newPoints = points === undefined ? previousParticipation.points : points;
 
 			const newParticipationDateList: Timestamp[] = [...previousParticipation.participationDateList];
 			if (newParticipation) {
