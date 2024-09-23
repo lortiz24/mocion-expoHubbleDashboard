@@ -1,9 +1,10 @@
 import { useState, useMemo } from 'react';
 import { showConfirmModal } from '../helpers/confirmFeedbackManagment';
 import { ConfirmModalType } from '../types/confirmModal';
-import { Paper, Stack, Text } from '@mantine/core';
+import { Alert, Paper, Stack, Text } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { checkInService } from '../services/checkin.service';
+import { IconInfoCircle } from '@tabler/icons-react';
 
 export const useCheckInUser = () => {
 	const [isSaving, setIsSaving] = useState(false);
@@ -54,7 +55,7 @@ export const useCheckInUser = () => {
 			const previewParticipation = await checkInService.getUserParticipation({ userCode });
 
 			const participationMessage = previewParticipation
-				? 'El usuario ya participo en esta experiencia'
+				? 'El usuario ya participo en esta experiencia.'
 				: 'Presione continuar para guardar la participación de este usuario en la experiencia';
 
 			const names = attendee.properties.names;
@@ -72,9 +73,11 @@ export const useCheckInUser = () => {
 								<Text c={'gray'}>{email}</Text>
 							</Stack>
 						</Paper>
+
+						<Alert variant='light' color='blue' title={'No se modificaran los puntos'} icon={<IconInfoCircle />} />
 					</Stack>
 				),
-				onConfirm: () => onSaveCheckIn(userCode, points === 0 ? (previewParticipation?.points ?? undefined ): points),
+				onConfirm: () => onSaveCheckIn(userCode, previewParticipation ? previewParticipation.points : points),
 				onCancel: () => {
 					setIsSaving(false);
 				},

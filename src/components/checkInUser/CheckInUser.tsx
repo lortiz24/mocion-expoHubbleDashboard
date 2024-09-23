@@ -21,7 +21,15 @@ export const CheckInUser = () => {
 								}}
 								error={checkInForm.errors.userCode}
 							/>
-							<Select value={experienceSelected} miw={400} label='Experiencia' data={allExperience} searchable onChange={(value) => handleChangeExperienceSelected(value ?? '')} />
+							<Select
+								clearable={false}
+								value={experienceSelected}
+								miw={400}
+								label='Experiencia'
+								data={allExperience}
+								searchable
+								onChange={(value) => handleChangeExperienceSelected(value ?? '')}
+							/>
 						</Group>
 						<TextInput
 							value={checkInForm.values.points}
