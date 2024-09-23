@@ -27,7 +27,6 @@ export const CheckInUser = () => {
 								miw={400}
 								label='Experiencia'
 								data={allExperience}
-								searchable
 								onChange={(value) => handleChangeExperienceSelected(value ?? '')}
 							/>
 						</Group>
