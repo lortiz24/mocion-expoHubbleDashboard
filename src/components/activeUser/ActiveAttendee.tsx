@@ -1,4 +1,4 @@
-import { Paper } from '@mantine/core';
+import { Badge, Paper, Stack, Text } from '@mantine/core';
 import { MyTable } from '../myTable/EviusTable';
 import { GroupedParticipation } from '../../hooks/useListeningParticipationByUser';
 import { checkInService } from '../../services/checkin.service';
@@ -16,6 +16,7 @@ export const ActiveAttendee = (props: Props) => {
 			checkIn: !!participationIntoExperience,
 			checkInAt: participationIntoExperience?.checkInAt,
 			points: participationIntoExperience?.points,
+			cantParticipacions: participationIntoExperience?.participationDateList?.length ?? 0,
 		};
 	});
 
@@ -25,35 +26,52 @@ export const ActiveAttendee = (props: Props) => {
 
 	return (
 		<Paper shadow='xl' p={'xl'} style={{ rowGap: '20px' }}>
-			<MyTable
-				scrollContainerProps={{ minWidth: 400 }}
-				elements={reOrderElements}
-				columns={[
-					{
-						accessor: 'experiencia',
-						header: 'Experiencia',
-					},
-					{
+			<Stack>
+				<Text>{selectedItem.names}</Text>
+				<MyTable
+					scrollContainerProps={{ minWidth: 400 }}
+					elements={reOrderElements}
+					columns={[
+						{
+							accessor: 'experiencia',
+							header: 'Experiencia',
+						},
+						/* {
 						accessor: 'checkIn',
 						header: 'Participo',
 						render({ value }) {
 							return <>{value ? 'Si' : 'No'}</>;
 						},
-					},
-					{
-						accessor: 'checkInAt',
-						header: 'Fecha participación',
-						render({ record }) {
-							const date = record.checkInAt?.toDate();
-							return <>{date?.toLocaleString()}</>;
+					}, */
+						{
+							accessor: 'checkInAt',
+							header: 'Fecha participación',
+							render({ record }) {
+								const date = record.checkInAt?.toDate();
+								if (!date) {
+									return (
+										<Badge variant='outline' color='gray'>
+											No participo
+										</Badge>
+									);
+								}
+								return <>{date?.toLocaleString()}</>;
+							},
+						},
+						{
+							accessor: 'points',
+							header: 'Puntos',
+						},
+						{
+						accessor: 'points',
+						header: 'Participo',
+						render({ value, record }) {
+							return <>{record.cantParticipacions > 0 ? record.cantParticipacions:null}</>;
 						},
 					},
-					{
-						accessor: 'points',
-						header: 'Puntos',
-					},
-				]}
-			/>
+					]}
+				/>
+			</Stack>
 		</Paper>
 	);
 };
