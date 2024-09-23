@@ -5,14 +5,14 @@ import { getDatabase } from 'firebase/database';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-	apiKey: 'AIzaSyAohyXq3R4t3ao7KFzLDY7W6--g6kOuS7Q',
-	authDomain: 'eviusauthdev.firebaseapp.com',
-	databaseURL: 'https://eviusauthdev-default-rtdb.firebaseio.com',
-	projectId: 'eviusauthdev',
-	storageBucket: 'eviusauthdev.appspot.com',
-	messagingSenderId: '86708016609',
-	appId: '1:86708016609:web:129d087ffa3077a1ef2ea0',
-};
+	apiKey: "AIzaSyDDnc9WHXf4CWwXCVggeiarYGu_xBgibJY",
+	authDomain: "eviusauth.firebaseapp.com",
+	databaseURL: "https://eviusauth.firebaseio.com",
+	projectId: "eviusauth",
+	storageBucket: "eviusauth.appspot.com",
+	messagingSenderId: "400499146867",
+	appId: "1:400499146867:web:5d0021573a43a1df"
+  };
 
 // Initialize Firebase
 export const FirebaseApp = initializeApp(firebaseConfig);

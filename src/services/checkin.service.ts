@@ -5,7 +5,7 @@ import { Attendee } from '../types/atendee.type';
 import { Experience } from '../types/experience.type';
 
 export class CheckInService {
-	readonly eventId: string = '66e4928e446844dcb6079aa2'; //Todo: Aquí coloca el id del evento
+	readonly eventId: string = '66d9babfff8148182c053214'; //Todo: Aquí coloca el id del evento
 	experienceId: string = 'KbCLd9hZ3r'; //toDo: Aquí coloca el id de la experiencia asignada
 	participationCollection: CollectionReference<DocumentData, DocumentData>;
 	attendeesCollection: CollectionReference<DocumentData, DocumentData>;
