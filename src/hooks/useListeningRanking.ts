@@ -8,6 +8,7 @@ export const useListeningRanking = () => {
 
 	const parseData = useCallback((participationList: Participation[]) => {
 		const topFive = getTopRanking(participationList);
+		console.log('participationList', participationList)
 		setRankingList(topFive);
 	}, []);
 

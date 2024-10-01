@@ -14,18 +14,18 @@ export class CheckInService {
 			id: 'i0own9qlUQ',
 			name: 'EXPERIENCIA HUBBELL - HOLOGRAMA INTERACTIVO', //Carlos Guerra
 		},
-		/* {
+		{
 			id: 'KbCLd9hZ3r',
 			name: 'EXPERIENCIA BURNDY - RACO - WIEGMANN - JUEGO DE DESTREZA EN TÓTEM', //Alejandra
-		}, */
-		/* {
+		},
+		{
 			id: 'cyhH5yUGs5',
 			name: 'CHANCE LINEMAN TOOLS - MEMORY MATCH', //Carlos Guerra
-		}, */
-		/* {
+		},
+		{
 			id: 'HI0qLLtutT',
 			name: 'EXPERIENCIA KILLARK - TRIVIA EN TÓTEM', //Fabian Salcedo
-		}, */
+		},
 		{
 			id: 'Fjkyw8lfUy',
 			name: 'EXPERIENCIA BURNDY - REALIDAD VIRTUAL CON OCULUS',
@@ -135,7 +135,7 @@ export class CheckInService {
 		return null;
 	}
 	// ---------------------------------------------------------------------------------------------------
-	async getUsersParticipation() {
+	async getUsersParticipation(): Promise<Participation[]> {
 		const querySnapshot = await getDocs(this.participationCollection); // Obtener todos los documentos
 
 		if (!querySnapshot.empty) {
@@ -144,10 +144,9 @@ export class CheckInService {
 				id: doc.id,
 				...(doc.data() as Omit<Participation, 'id'>),
 			}));
-
-			return usersParticipation;
+			return this.removeDuplicateParticipations(usersParticipation);
 		} else {
-			return [];
+			return [] as Participation[];
 		}
 	}
 	listeningUsersParticipation(onSetUsersParticipants: (data: Participation[]) => void) {
@@ -160,7 +159,8 @@ export class CheckInService {
 						id: doc.id,
 						...(doc.data() as Omit<Participation, 'id'>),
 					}));
-					onSetUsersParticipants(usersParticipation);
+
+					onSetUsersParticipants(this.removeDuplicateParticipations(usersParticipation));
 					// Aquí puedes manejar los datos actualizados, por ejemplo, guardarlos en el estado
 				} else {
 					onSetUsersParticipants([]);
@@ -217,6 +217,20 @@ export class CheckInService {
 	getExperienceById({ experienceId }: { experienceId: string }) {
 		const experience = this.experiences.find((experience) => experience.id === experienceId) as Experience;
 		return experience;
+	}
+
+	removeDuplicateParticipations(participations: Participation[]) {
+		const uniqueParticipations: { [key: string]: any } = {};
+
+		participations.forEach((item) => {
+			const key = `${item.userCode}-${item.experienceId}`;
+
+			if (!uniqueParticipations[key]) {
+				uniqueParticipations[key] = item; // Guardar la primera aparición
+			}
+		});
+
+		return Object.values(uniqueParticipations);
 	}
 }
 

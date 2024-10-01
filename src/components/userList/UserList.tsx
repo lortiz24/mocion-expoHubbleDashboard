@@ -17,7 +17,6 @@ export const UserList = () => {
 		openDoor();
 		setSelectedItem(attendee);
 	};
-
 	return (
 		<Paper shadow='xl' p={'xl'} style={{ rowGap: '20px' }}>
 			<Modal opened={isOpenDoor} onClose={closeDoor} size={'xl'}>
