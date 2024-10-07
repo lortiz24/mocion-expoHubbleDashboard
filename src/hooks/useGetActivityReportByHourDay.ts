@@ -3,6 +3,12 @@ import { checkInService } from '../services/checkin.service';
 import { Participation } from '../types/checkIn.type';
 import { MyTableColumn } from '../components/myTable/EviusTable';
 import dayjs from 'dayjs';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+
+// Extender dayjs con soporte para UTC y Timezone
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 interface ActivityReportByHourDay {
 	date: string;
@@ -52,7 +58,8 @@ export const useGetActivityReportByHourDay = () => {
 
 		// Procesar los datos de las participaciones
 		participations.forEach((participation) => {
-			const participationDate = dayjs.unix(participation.checkInAt.seconds); // Convertir a dayjs
+			// Convertir el timestamp al formato de la zona horaria de México
+			const participationDate = dayjs.unix(participation.checkInAt.seconds).tz('America/Mexico_City');
 			const date = participationDate.format('YYYY-MM-DD'); // Segmentación por día
 			const hour = participationDate.format('HH:00'); // Segmentación por hora (intervalos de 1 hora)
 
@@ -67,7 +74,7 @@ export const useGetActivityReportByHourDay = () => {
 			}
 
 			// Actualizar el número total de participaciones y puntos acumulados
-			report[date][hour].totalParticipations += 1;
+			report[date][hour].totalParticipations += participation.participationDateList.length;
 			report[date][hour].totalPoints += participation.points;
 		});
 

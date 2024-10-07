@@ -1,15 +1,20 @@
+import { Stack } from '@mantine/core';
 import { useGetActivityReportByHourDay } from '../../hooks/useGetActivityReportByHourDay';
 import { MyTable } from '../myTable/EviusTable';
+import { ExportExcel } from '../exportExcel/ExportExcel';
 
 export const ActividadPorHora = () => {
 	const { activityReport, activityReportColumns, isLoading } = useGetActivityReportByHourDay();
 
-	const epa = activityReport?.map((algo) => algo.totalPoints).reduce((a, b) => a + b);
-	// console.log('epa', epa);
-
 	return (
-		<div>
+		<Stack>
+			<ExportExcel
+				fileName='actividadPorHora'
+				columns={activityReportColumns.map((colum) => ({ title: colum.header as string, dataIndex: colum.accessor as string }))}
+				onlyColumns
+				list={activityReport}
+			/>
 			<MyTable columns={activityReportColumns} elements={activityReport} isLoading={isLoading} />
-		</div>
+		</Stack>
 	);
 };

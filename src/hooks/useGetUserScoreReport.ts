@@ -5,6 +5,7 @@ import { MyTableColumn } from '../components/myTable/EviusTable';
 
 interface UserScoreReport {
 	userName: string;
+	email: string;
 	experienceName: string;
 	firstParticipationPoints: number;
 	timesParticipated: number;
@@ -14,6 +15,10 @@ export const userScoreColumns: MyTableColumn<UserScoreReport>[] = [
 	{
 		accessor: 'userName',
 		header: 'Nombre de Usuario',
+	},
+	{
+		accessor: 'email',
+		header: 'Correo electrónico',
 	},
 	{
 		accessor: 'experienceName',
@@ -66,7 +71,7 @@ export const useGetUserScoreReport = () => {
 			if (!userExperienceTracker[userCode][experienceId]) {
 				userExperienceTracker[userCode][experienceId] = {
 					firstParticipationPoints: data.points, // Puntos de la primera participación
-					timesParticipated: 1, // Primera participación
+					timesParticipated: data.participationDateList.length, // Primera participación
 				};
 			} else {
 				// Si ya participó antes, solo aumentamos el número de participaciones
@@ -84,6 +89,7 @@ export const useGetUserScoreReport = () => {
 				if (userParticipation) {
 					report.push({
 						userName: userParticipation.names, // Usar `names` como el nombre real del usuario
+						email: userParticipation.email, // Usar `names` como el nombre real del usuario
 						experienceName: experience.name,
 						firstParticipationPoints,
 						timesParticipated,

@@ -136,6 +136,10 @@ export class CheckInService {
 	}
 	// ---------------------------------------------------------------------------------------------------
 	async getUsersParticipation(): Promise<Participation[]> {
+		/* const q = query(this.participationCollection, where('experienceId', '==', 'jZ8JxL0Vue'));
+
+		const querySnapshot = await getDocs(q);
+		console.log('querySnapshot', querySnapshot); */
 		const querySnapshot = await getDocs(this.participationCollection); // Obtener todos los documentos
 
 		if (!querySnapshot.empty) {

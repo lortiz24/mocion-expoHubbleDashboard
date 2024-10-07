@@ -21,6 +21,10 @@ export const engagementReportColumns: MyTableColumn<UserEngagementReport>[] = [
 		header: 'Nombre de Usuario',
 	},
 	{
+		accessor: 'email',
+		header: 'Correo electrónico',
+	},
+	{
 		accessor: 'totalTimesPlayed',
 		header: 'Total Veces Jugó',
 	},
@@ -52,7 +56,9 @@ export const useGetUserEngagementReport = () => {
 	};
 
 	const generateUserEngagementReport = (userExperienceData: Participation[]): UserEngagementReport[] => {
-		const report: { [key: string]: { userName: string; totalPoints: number; totalTimesPlayed: number; totalExperiencesParticipated: Set<string>; firstParticipationDate: Date } } = {};
+		const report: {
+			[key: string]: { userName: string; totalPoints: number; totalTimesPlayed: number; totalExperiencesParticipated: Set<string>; firstParticipationDate: Date; email: string };
+		} = {};
 
 		// Procesar los datos de los usuarios
 		userExperienceData.forEach((data) => {
@@ -62,6 +68,7 @@ export const useGetUserEngagementReport = () => {
 			if (!report[userCode]) {
 				report[userCode] = {
 					userName: data.names,
+					email: data.email,
 					totalPoints: 0,
 					totalTimesPlayed: 0,
 					totalExperiencesParticipated: new Set<string>(), // Usamos un Set para contar experiencias únicas
@@ -96,6 +103,7 @@ export const useGetUserEngagementReport = () => {
 		return sortedReport.map((entry, index) => ({
 			ranking: index + 1,
 			userName: entry.userName,
+			email: entry.email,
 			totalTimesPlayed: entry.totalTimesPlayed,
 			totalExperiencesParticipated: entry.totalExperiencesParticipated.size, // Convertimos el Set en su tamaño
 			totalPoints: entry.totalPoints,
